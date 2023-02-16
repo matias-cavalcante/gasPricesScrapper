@@ -46,6 +46,7 @@ if response.status_code == 200:
         cleansed = cleanArray(listed)
         print(cleansed)
 
+    # Again, just getting the info now. When i have a front end service available this will work with an API
 
 else:
     print("Request failed with status code: ", response.status_code)
