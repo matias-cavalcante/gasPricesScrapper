@@ -10,12 +10,18 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 # Browsing options
 options = webdriver.ChromeOptions()
+
+options.binary_location = '/usr/bin/google-chrome-stable'
+
+
 options.add_argument('--headless')
 options.add_argument('--start-maximized')
 options.add_argument('--disable-extensions')
 
 options.add_argument('--disable-dev-shm-usage')
 options.add_argument('--disable-gpu')
+
+# Replace with the actual path to the Chrome binary
 
 
 url = 'https://www.n1.is/thjonusta/eldsneyti/daeluverd/'
