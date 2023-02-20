@@ -5,17 +5,26 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium import webdriver
 
+from webdriver_manager.chrome import ChromeDriverManager
+
+
 # Browsing options
 options = webdriver.ChromeOptions()
 options.add_argument('--headless')
 options.add_argument('--start-maximized')
 options.add_argument('--disable-extensions')
 
+options.add_argument('--disable-dev-shm-usage')
+options.add_argument('--disable-gpu')
+
 
 url = 'https://www.n1.is/thjonusta/eldsneyti/daeluverd/'
 
 #driver = webdriver.Chrome()
-driver = webdriver.Chrome(options=options)
+#driver = webdriver.Chrome(options=options)
+driver = webdriver.Chrome(
+    ChromeDriverManager().install(), options=chrome_options)
+
 driver.get(url)
 
 
