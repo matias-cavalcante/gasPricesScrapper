@@ -11,7 +11,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 # Browsing options
 options = webdriver.ChromeOptions()
 
-options.binary_location = '/usr/bin/google-chrome-stable'
+options.binary_location = "/usr/lib/chromium-or-chrome-stable-path"
 
 
 options.add_argument('--headless')
