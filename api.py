@@ -2,7 +2,7 @@
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-import scrapN1
+import PypeteerAPP
 
 app = Flask(__name__)
 CORS(app)
@@ -10,10 +10,11 @@ CORS(app)
 
 @app.route('/n1', methods=['GET'])
 def hello():
-    n1Data = scrapN1.clickAndFetch()
-    n1JsonNow = jsonify(n1Data)
-    return n1JsonNow
+    responseGas = PypeteerAPP.response
+    jsonito = PypeteerAPP.n1Data(responseGas)
+    return jsonito
 
 
-if __name__ == '__main__':
+ if __name__ == '__main__':
     app.run(debug=True)
+
