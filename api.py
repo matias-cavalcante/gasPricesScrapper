@@ -8,12 +8,12 @@ app = Flask(__name__)
 CORS(app)
 
 
-@app.route('/n1', methods=['GET'])
+# @app.route('/n1', methods=['GET'])
 def hello():
     responseGas = PypeteerAPP.response
     jsonito = PypeteerAPP.n1Data(responseGas)
     return jsonito
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
+# if __name__ == '__main__':
+#    app.run(debug=True)

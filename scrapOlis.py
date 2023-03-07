@@ -1,52 +1,42 @@
 import requests
 from bs4 import BeautifulSoup
 
+from cityRegion import getRegionByCity
 
-locations = []
-okt95s = []
-diesels = []
+
+url = "https://www.olis.is/solustadir/thjonustustodvar/eldsneytisverd/"
+response = requests.get(url)
+
+soup = BeautifulSoup(response.text, "html.parser")
+
+darkRowStations = soup.find_all("tr", {"class": "alt"})
+lightRowStations = soup.find_all("tr", class_="")
+lightRowStations = lightRowStations[2:]
 
 
 def cleanArray(array):
     cleaned = []
-    if len(array) > 3:
+    if len(array) >= 3:
         cleaned.append(array[0])
         cleaned.append(array[-2])
         cleaned.append(array[-1])
-    elif len(array) < 3:
-        return None
-    else:
-        return array
-    return cleaned
+        return cleaned
 
 
-# Make a request to the website
-url = "https://www.olis.is/solustadir/thjonustustodvar/eldsneytisverd/"
-response = requests.get(url)
+def stationDictFiller(dictionary, elements):
+    updatedDictionary = dictionary
+    for row in elements:
+        rowText = row.text.split()
+        if type(rowText) == list:
+            cleanRows = cleanArray(rowText)
+            stationName = cleanRows[0].lower().replace(',', '')
+            bensin = float(cleanRows[1].replace(',', '.'))
+            disel = float(cleanRows[2].replace(',', '.'))
+            updatedDictionary[stationName] = {'region': getRegionByCity(stationName),
+                                              'bensin': bensin, 'disel': disel}
+    return updatedDictionary
 
-# Check if the request was successful
-if response.status_code == 200:
-    # Create a BeautifulSoup object to parse the HTML
-    soup = BeautifulSoup(response.text, "html.parser")
 
-    # Find the  desired content on the page
-    elements = soup.find_all("tr", {"class": "alt"})
-
-    whiteElements = soup.find_all("tr", class_="")
-
-    for l in elements:
-        listed = l.text.split()
-        cleansed = cleanArray(listed)
-        print(cleansed)
-
-    print("--------------------\n")
-
-    for l in whiteElements:
-        listed = l.text.split()
-        cleansed = cleanArray(listed)
-        print(cleansed)
-
-    # Again, just getting the info now. When i have a front end service available this will work with an API
-
-else:
-    print("Request failed with status code: ", response.status_code)
+stationsJsoned = {}
+darkStationsInDict = stationDictFiller(stationsJsoned, darkRowStations)
+totalStationsInDict = stationDictFiller(darkStationsInDict, lightRowStations)
