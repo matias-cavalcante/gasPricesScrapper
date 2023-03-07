@@ -19,7 +19,7 @@ def hardcodeStationOB(check):
     return check
 
 
-def stationsAndPrices(resp):
+def stationsAndPricesOB(resp):
     dataNeeded = {}
     dataRaw = resp.json()
     for data in dataRaw:

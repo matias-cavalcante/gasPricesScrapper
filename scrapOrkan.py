@@ -73,3 +73,5 @@ if response.status_code == 200:
         orkanData['bensin'] = okt
         orkanData['disel'] = dsl
         jsoningData[name] = orkanData
+
+    results = jsoningData

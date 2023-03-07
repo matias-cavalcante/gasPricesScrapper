@@ -22,7 +22,7 @@ def hardcodeNamesForAO(check):
 # When consuming the API the name for ' Háaleiti' does not work with my file, so i replace it for 'Háaleitisbraut'
 
 
-def stationsAndPrices(resp):
+def stationsAndPricesAO(resp):
     dataNeeded = {}
     dataRaw = resp.json()
     actualData = dataRaw['items']

@@ -27,7 +27,7 @@ def hardcodeStationN1(check):
     return check
 
 
-def stationsAndPrices(resp):
+def stationsAndPricesN1(resp):
     json_data = response.json()
     dataNeeded = {}
     for data in json_data:
