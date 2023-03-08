@@ -25,7 +25,7 @@ def last_char_differs(str1, str2):
 
 def getRegionByCity(city_name):
     toCheck = removeAccent(city_name)
-    csv_file = 'C:/Users/35476/Desktop/gas/iceland.csv'
+    csv_file = 'iceland.csv'
     with open(csv_file, 'r', encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
