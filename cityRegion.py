@@ -1,7 +1,6 @@
 
 import csv
 import os
-from unidecode import unidecode
 import re
 
 
