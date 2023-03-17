@@ -26,6 +26,7 @@ def n1():
     json_data = json.dumps(data, ensure_ascii=False)
     response = Response(
         json_data, content_type='application/json; charset=utf-8')
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     return response
 
 
@@ -35,6 +36,7 @@ def atlansolia():
     json_data = json.dumps(data, ensure_ascii=False)
     response = Response(
         json_data, content_type='application/json; charset=utf-8')
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     return response
 
 
@@ -44,6 +46,7 @@ def ob():
     json_data = json.dumps(data, ensure_ascii=False)
     response = Response(
         json_data, content_type='application/json; charset=utf-8')
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     return response
 
 
@@ -53,6 +56,7 @@ def orkan():
     json_data = json.dumps(data, ensure_ascii=False)
     response = Response(
         json_data, content_type='application/json; charset=utf-8')
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     return response
 
 
@@ -62,9 +66,9 @@ def olis():
     json_data = json.dumps(data, ensure_ascii=False)
     response = Response(
         json_data, content_type='application/json; charset=utf-8')
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     return response
 
 
 if __name__ == '__main__':
     app.run(debug=True)
-    print(n1())
