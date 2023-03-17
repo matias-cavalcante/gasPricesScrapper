@@ -14,7 +14,6 @@ from dataOB import response as respob
 from dataOB import stationsAndPricesOB
 
 from scrapOrkan import results as respork
-
 from scrapOlis import totalStationsInDict as respolis
 
 app = Flask(__name__)
@@ -68,3 +67,4 @@ def olis():
 
 if __name__ == '__main__':
     app.run(debug=True)
+    print(n1())
