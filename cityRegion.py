@@ -1,4 +1,5 @@
 
+import difflib
 import csv
 import os
 import re
@@ -26,18 +27,16 @@ def last_char_differs(str1, str2):
 def getRegionByCity(city_name):
     toCheck = removeAccent(city_name)
     csv_file = 'iceland.csv'
+    cities = []
+
     with open(csv_file, 'r', encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             candidate = removeAccent(row['location'])
-            if candidate == toCheck:
-                return row['region']
-            elif candidate in toCheck or toCheck.lower() in candidate:
-                return row['region']
-            elif " " in candidate:
-                candidate = candidate.split(" ")
-                if candidate[1].lower() == toCheck.lower():
-                    return row['region']
-            elif last_char_differs(toCheck.lower(), candidate.lower()) != False:
-                return row['region']
-    return None
+            cities.append((candidate, row['region']))
+
+    # Find the most similar city using SequenceMatcher
+    most_similar_city = max(cities, key=lambda x: difflib.SequenceMatcher(
+        None, toCheck.lower(), x[0].lower()).ratio())
+
+    return most_similar_city[1]
