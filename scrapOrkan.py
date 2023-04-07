@@ -31,7 +31,7 @@ def main():
 
     session = HTMLSession()
     response = session.get(url)
-    response.html.render(timeout=8, sleep=5)
+    response.html.render(timeout=10, sleep=5)
 
     content = response.html.raw_html
 
