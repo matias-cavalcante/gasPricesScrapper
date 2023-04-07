@@ -1,77 +1,57 @@
-import requests
+import re
 from bs4 import BeautifulSoup
-import cityRegion
-import csv
-
-# Make a request to the website
-url = "https://www.orkan.is/orkustodvar/"
-response = requests.get(url)
+from requests_html import HTMLSession
+from cityRegion import getRegionByCity
 
 
-def rejectEmptyString(row):
-    numbers = '0123456789'
-    numbersTotal = 0
-    noEmpty = ""
-    for c in range(len(row)):
-        if row[c] != " ":
-            noEmpty = noEmpty + row[c]
-            if row[c] in numbers:
-                numbersTotal = numbersTotal + 1
-        if numbersTotal == 8:
-            break
-    return noEmpty
+def process_string(tup):
+    name = tup[0]
+    cleanedName = ""
+    nameExclude = "0123456789,"
+    for p in name:
+        if p not in nameExclude:
+            cleanedName = cleanedName + p
+    return cleanedName
 
 
-def findName(row):
-    numbers = "0123456789"
-    location = ""
-    for c in range(len(row)):
-        if row[c] not in numbers or row[c] == ',':
-            location = location + row[c]
-        else:
-            break
-    return location
-
-# Normalize the information to the desired format
-
-
-def cleanResults(cleaner, info):
-    noSpaces = cleaner(info).split(" ")
-    lastRefined = [noSpaces[0].strip()]
-    return lastRefined
-
-# Handle results with hardcoded values (no other choice)
+def getNumbers(tup):
+    references = "0123456789"
+    singleNumber = tup[1]
+    capturedNumbers = ""
+    for n in tup[0]:
+        if n in references:
+            capturedNumbers = capturedNumbers + n
+    group1 = capturedNumbers[0:3] + "." + capturedNumbers[3]
+    group2 = capturedNumbers[4:7] + "." + singleNumber
+    return [group1, group2]
 
 
-def hardcodeStationOrk(check):
-    if check == 'miklabraut':
-        return 'Miklabraut, norður'
-    elif check == 'miklabrautv.kringluna':
-        return 'Miklabraut, suður'
-    elif check == 'kjarnagata,akureyri':
-        return 'Akureyri, Kjarnagata'
-    return check
+def main():
+    url = "https://www.orkan.is/orkustodvar/"
 
+    session = HTMLSession()
+    response = session.get(url)
+    response.html.render(timeout=7, sleep=4)
 
-if response.status_code == 200:
-    soup = BeautifulSoup(response.text, "html.parser")
-    elements = soup.find_all("div", {"class": "row accordion__row"})
-    jsoningData = {}
+    content = response.html.raw_html
 
-    for l in elements:
-        orkanData = {}
-        toText = l.text
-        cleaned = cleanResults(rejectEmptyString, toText)
-        name = findName(cleaned[0]).lower()
-        name = hardcodeStationOrk(name)
-        region = cityRegion.getRegionByCity(name)
-        okt = float(cleaned[0][len(findName(cleaned[0])):len(
-            findName(cleaned[0])) + 5].replace(',', '.'))
-        dsl = float(
-            cleaned[0][len(findName(cleaned[0])) + 5:].replace(',', '.'))
-        orkanData['region'] = region
-        orkanData['bensin'] = okt
-        orkanData['disel'] = dsl
-        jsoningData[name] = orkanData
+    soup = BeautifulSoup(content, "html.parser")
+    collapse_panel = soup.find('div')
 
-    results = jsoningData
+    try:
+        raw_data = collapse_panel.text
+    except AttributeError:
+        return "Not available"
+
+    pattern = r'(?<=[\s])([ÞA-Z][a-zA-ZáéíóúýÁÉÍÓÚÝæÆöÖð, \d]*,[a-zA-ZáéíóúýÁÉÍÓÚÝæÆöÖ\d]*,)(\d{1,8})'
+    matches = re.findall(pattern, raw_data)
+
+    storeData = {}
+    for m in matches:
+        stationInfo = {}
+        stationInfo['region'] = getRegionByCity(process_string(m))
+        stationInfo['bensin'] = float(getNumbers(m)[0])
+        stationInfo['disel'] = float(getNumbers(m)[1])
+        storeData[process_string(m)] = stationInfo
+
+    return storeData

@@ -1,5 +1,4 @@
 
-
 from flask import Flask, jsonify, request, Response
 import json
 from flask_cors import CORS
@@ -13,7 +12,8 @@ from dataAtlantsolia import stationsAndPricesAO
 from dataOB import response as respob
 from dataOB import stationsAndPricesOB
 
-from scrapOrkan import results as respork
+import scrapOrkan  # carefull here
+
 from scrapOlis import totalStationsInDict as respolis
 
 app = Flask(__name__)
@@ -52,7 +52,8 @@ def ob():
 
 @app.route('/orkan', methods=['GET'])
 def orkan():
-    data = respork
+    data = scrapOrkan.main()
+    print(data)
     json_data = json.dumps(data, ensure_ascii=False)
     response = Response(
         json_data, content_type='application/json; charset=utf-8')
