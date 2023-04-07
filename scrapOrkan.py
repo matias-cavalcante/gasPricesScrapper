@@ -31,7 +31,7 @@ def main():
 
     session = HTMLSession()
     response = session.get(url)
-    response.html.render(timeout=7, sleep=4)
+    response.html.render(timeout=8, sleep=5)
 
     content = response.html.raw_html
 
@@ -55,3 +55,6 @@ def main():
         storeData[process_string(m)] = stationInfo
 
     return storeData
+
+
+print(main())
