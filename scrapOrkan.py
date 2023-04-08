@@ -1,7 +1,9 @@
 import re
 from bs4 import BeautifulSoup
 from requests_html import HTMLSession
+import requests
 from cityRegion import getRegionByCity
+import time
 
 
 def process_string(tup):
@@ -31,7 +33,9 @@ def main():
 
     session = HTMLSession()
     response = session.get(url)
-    response.html.render(timeout=6, sleep=4)
+
+    # Render the JavaScript and wait for a specified time
+    response.html.render(timeout=10, sleep=5)
 
     content = response.html.raw_html
 
@@ -55,6 +59,3 @@ def main():
         storeData[process_string(m)] = stationInfo
 
     return storeData
-
-
-print(main())
