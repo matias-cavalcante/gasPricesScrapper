@@ -1,5 +1,3 @@
-
-
 import difflib
 import csv
 import os
@@ -31,34 +29,29 @@ def load_city_regions():
 city_region_dict = load_city_regions()
 
 
-def levenshtein_distance(s1, s2):
-    if len(s1) < len(s2):
-        return levenshtein_distance(s2, s1)
-
-    if len(s2) == 0:
-        return len(s1)
-
-    previous_row = range(len(s2) + 1)
-    for i, c1 in enumerate(s1):
-        current_row = [i + 1]
-        for j, c2 in enumerate(s2):
-            insertions = previous_row[j + 1] + 1
-            deletions = current_row[j] + 1
-            substitutions = previous_row[j] + (c1 != c2)
-            current_row.append(min(insertions, deletions, substitutions))
-        previous_row = current_row
-
-    return previous_row[-1]
-
-
 def getRegionByCity(city_name):
     toCheck = removeAccent(city_name)
+    max_similarity = 0
+    best_region = None
 
-    # Find the most similar city using Levenshtein distance
-    most_similar_city = max(city_region_dict.items(
-    ), key=lambda x: -levenshtein_distance(toCheck.lower(), x[0].lower()))
+    for candidate, region in city_region_dict.items():
+        # If the candidate matches the city_name exactly, return the region immediately
+        if candidate == toCheck:
+            return region
 
-    return most_similar_city[1]
+        # Check if the candidate is contained in the city_name or vice versa
+        if candidate in toCheck or toCheck.lower() in candidate:
+            similarity = difflib.SequenceMatcher(
+                None, toCheck.lower(), candidate.lower()).ratio()
 
+            if similarity > max_similarity:
+                max_similarity = similarity
+                best_region = region
 
-print(getRegionByCity('Fjarðarkaup'))
+    # If no exact or partial match is found, use SequenceMatcher for more precise matching
+    if best_region is None:
+        most_similar_city = max(city_region_dict.keys(), key=lambda x: difflib.SequenceMatcher(
+            None, toCheck.lower(), x.lower()).ratio())
+        best_region = city_region_dict[most_similar_city]
+
+    return best_region
