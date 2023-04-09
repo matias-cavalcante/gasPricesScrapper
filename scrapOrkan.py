@@ -20,8 +20,8 @@ def filter_data(data, company_name):
 
             filtered_data[name] = {
                 "region": region,
-                "bensin": bensin,
-                "diesel": diesel
+                "bensin": float(bensin),
+                "diesel": float(diesel)
             }
 
     return filtered_data
