@@ -1,61 +1,37 @@
-import re
-from bs4 import BeautifulSoup
-from requests_html import HTMLSession
 import requests
+import json
 from cityRegion import getRegionByCity
-import time
 
 
-def process_string(tup):
-    name = tup[0]
-    cleanedName = ""
-    nameExclude = "0123456789,"
-    for p in name:
-        if p not in nameExclude:
-            cleanedName = cleanedName + p
-    return cleanedName
+def fetch_data(url):
+    response = requests.get(url)
+    return response.json()
 
 
-def getNumbers(tup):
-    references = "0123456789"
-    singleNumber = tup[1]
-    capturedNumbers = ""
-    for n in tup[0]:
-        if n in references:
-            capturedNumbers = capturedNumbers + n
-    group1 = capturedNumbers[0:3] + "." + capturedNumbers[3]
-    group2 = capturedNumbers[4:7] + "." + singleNumber
-    return [group1, group2]
+def filter_data(data, company_name):
+    filtered_data = {}
+
+    for result in data['results']:
+        if result['company'] == company_name:
+            name = result['name']
+            region = getRegionByCity(name)
+            bensin = result['bensin95']
+            diesel = result['diesel']
+
+            filtered_data[name] = {
+                "region": region,
+                "bensin": bensin,
+                "diesel": diesel
+            }
+
+    return filtered_data
 
 
 def main():
-    url = "https://www.orkan.is/orkustodvar/"
+    url = "https://apis.is/petrol"
+    company_name = "Orkan"
 
-    session = HTMLSession()
-    response = session.get(url)
+    data = fetch_data(url)
+    filtered_data = filter_data(data, company_name)
 
-    # Render the JavaScript and wait for a specified time
-    response.html.render(timeout=10, sleep=5)
-
-    content = response.html.raw_html
-
-    soup = BeautifulSoup(content, "html.parser")
-    collapse_panel = soup.find('div')
-
-    try:
-        raw_data = collapse_panel.text
-    except AttributeError:
-        return "Not available"
-
-    pattern = r'(?<=[\s])([ÞA-Z][a-zA-ZáéíóúýÁÉÍÓÚÝæÆöÖð, \d]*,[a-zA-ZáéíóúýÁÉÍÓÚÝæÆöÖ\d]*,)(\d{1,8})'
-    matches = re.findall(pattern, raw_data)
-
-    storeData = {}
-    for m in matches:
-        stationInfo = {}
-        stationInfo['region'] = getRegionByCity(process_string(m))
-        stationInfo['bensin'] = float(getNumbers(m)[0])
-        stationInfo['disel'] = float(getNumbers(m)[1])
-        storeData[process_string(m)] = stationInfo
-
-    return storeData
+    return json.dumps(filtered_data, ensure_ascii=False)
