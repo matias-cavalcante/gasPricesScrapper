@@ -34,4 +34,4 @@ def main():
     data = fetch_data(url)
     filtered_data = filter_data(data, company_name)
 
-    return json.dumps(filtered_data, ensure_ascii=False)
+    return filtered_data
