@@ -38,7 +38,8 @@ def stationsAndPricesN1(resp):
         stationName = removeFirstPosWhiteSpace(stationName)
         stationName = hardcodeStationN1(stationName)
         stationData['region'] = getRegionByCity(stationName)
-        stationData['bensin'] = float(data['GasPrice'].replace(',', '.'))
-        stationData['disel'] = float(data['DiselPrice'].replace(',', '.'))
-        dataNeeded[stationName] = stationData
+        if data['GasPrice'] != None and data['DiselPrice'] != None:
+            stationData['bensin'] = float(data['GasPrice'].replace(',', '.'))
+            stationData['disel'] = float(data['DiselPrice'].replace(',', '.'))
+            dataNeeded[stationName] = stationData
     return dataNeeded
