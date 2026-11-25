@@ -40,6 +40,7 @@ def n1():
     response = Response(
         json_data, content_type='application/json; charset=utf-8')
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    print("RESPONSE DEBUG", response)
     return response
 
 
