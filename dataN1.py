@@ -1,7 +1,8 @@
 from cityRegion import getRegionByCity
 import requests
 
-url = 'https://www.n1.is/umbraco/api/fuel/getfuelprices'
+#url = 'https://www.n1.is/umbraco/api/fuel/getfuelprices'
+url = 'https://gamli.n1.is/umbraco/api/fuel/getfuelprices' #Testing this
 response = requests.post(url)
 
 
