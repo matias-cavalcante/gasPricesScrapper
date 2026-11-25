@@ -18,6 +18,20 @@ from scrapOlis import totalStationsInDict as respolis
 app = Flask(__name__)
 CORS(app)
 
+@app.route('/', methods=['GET'])
+def home():
+    return jsonify({
+        "status": "Online",
+        "message": "Gas Prices Scrapper API is running!",
+        "available_endpoints": [
+            "/api/n1",
+            "/api/atlanso",
+            "/api/ob",
+            "/api/orkan",
+            "/api/olis"
+        ]
+    })
+
 
 @app.route('/n1', methods=['GET'])
 def n1():
