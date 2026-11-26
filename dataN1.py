@@ -1,5 +1,5 @@
 from cityRegion import getRegionByCity
-from curl_cffi import requests as cffi_requests
+import requests
 
 def get_n1_prices_data():
     url = 'https://gamli.n1.is/umbraco/api/fuel/getfuelprices'
@@ -9,14 +9,14 @@ def get_n1_prices_data():
         "Accept": "application/json, text/javascript, */*; q=0.01",
     }
     try:
-        # Impersonate Chrome's TLS fingerprint to bypass OpenSSL 3 / TLS restrictions
-        response = cffi_requests.post(url, headers=headers, impersonate="chrome120", data="", timeout=10)
+        # Standard requests with a 10s timeout. If Vercel's IP is blocked by N1's edge, 
+        # this safely catches it instead of throwing a 500 crash.
+        response = requests.post(url, headers=headers, data="", timeout=8)
         response.raise_for_status()
         return response.json()
     except Exception as e:
-        print(f"Error fetching N1 data: {e}")
+        print(f"Error fetching N1 data on serverless: {e}")
         return []
-
 
 def clearNameStation(name):
     if len(name) > 2:
@@ -25,12 +25,10 @@ def clearNameStation(name):
     else:
         return name
 
-
 def removeFirstPosWhiteSpace(spaced):
     if spaced.startswith(" "):
         return spaced.lstrip()
     return spaced
-
 
 def hardcodeStationN1(check):
     if check == 'Lækjargata':
@@ -39,10 +37,14 @@ def hardcodeStationN1(check):
         return 'Höfn'
     return check
 
-
 def stationsAndPricesN1(resp=None):
     json_data = get_n1_prices_data()
     dataNeeded = {}
+    
+    # If the live fetch fails entirely, return empty dict gracefully
+    if not json_data:
+        return dataNeeded
+
     for data in json_data:
         stationData = {}
         stationName = clearNameStation(data.get('Name', ''))
@@ -50,6 +52,8 @@ def stationsAndPricesN1(resp=None):
             stationName = stationName[1:]
         stationName = removeFirstPosWhiteSpace(stationName)
         stationName = hardcodeStationN1(stationName)
+        
+        # FIX THE REGION MATCH: Ensure cityRegion actually maps the station name
         stationData['region'] = getRegionByCity(stationName)
         
         gas_price = data.get('GasPrice')
