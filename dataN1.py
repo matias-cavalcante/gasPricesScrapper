@@ -1,14 +1,16 @@
 from cityRegion import getRegionByCity
-import requests
+from curl_cffi import requests as cffi_requests
 
 def get_n1_prices_data():
     url = 'https://gamli.n1.is/umbraco/api/fuel/getfuelprices'
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Referer": "https://gamli.n1.is/thjonusta/eldsneyti/daeluverd/"
+        "Referer": "https://gamli.n1.is/thjonusta/eldsneyti/daeluverd/",
+        "Accept": "application/json, text/javascript, */*; q=0.01",
     }
     try:
-        response = requests.post(url, headers=headers, timeout=10)
+        # Impersonate Chrome's TLS fingerprint to bypass OpenSSL 3 / TLS restrictions
+        response = cffi_requests.post(url, headers=headers, impersonate="chrome120", data="", timeout=10)
         response.raise_for_status()
         return response.json()
     except Exception as e:
@@ -43,14 +45,24 @@ def stationsAndPricesN1(resp=None):
     dataNeeded = {}
     for data in json_data:
         stationData = {}
-        stationName = clearNameStation(data['Name'])
+        stationName = clearNameStation(data.get('Name', ''))
         if stationName and stationName[0] == " ":
             stationName = stationName[1:]
         stationName = removeFirstPosWhiteSpace(stationName)
         stationName = hardcodeStationN1(stationName)
         stationData['region'] = getRegionByCity(stationName)
-        if data.get('GasPrice') is not None and data.get('DiselPrice') is not None:
-            stationData['bensin'] = float(data['GasPrice'].replace(',', '.'))
-            stationData['disel'] = float(data['DiselPrice'].replace(',', '.'))
+        
+        gas_price = data.get('GasPrice')
+        diesel_price = data.get('DiselPrice')
+        
+        if gas_price is not None and diesel_price is not None:
+            if isinstance(gas_price, str):
+                gas_price = gas_price.replace(',', '.')
+            if isinstance(diesel_price, str):
+                diesel_price = diesel_price.replace(',', '.')
+                
+            stationData['bensin'] = float(gas_price)
+            stationData['disel'] = float(diesel_price)
             dataNeeded[stationName] = stationData
+            
     return dataNeeded
